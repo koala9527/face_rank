@@ -1,4 +1,5 @@
-# face_mark
+## 来源
+来源：https://github.com/lwpyh/face_mark
 教程地址：https://blog.csdn.net/lwpyh/article/details/87902245  
 需要：
 python3.5及以上，keras2.2.4,face_recognition1.0.0,glob2 0.6  
@@ -9,5 +10,13 @@ predict.py:测试代码
 keras-flask-deploy-webapp文件夹下是具体如何实现前端网页demo的代码  
 app.py:实现交互的核心部分  
 注意将生成的h5文件放到model文件夹下  
-![Image text](https://github.com/lwpyh/face_mark/raw/master/image1.jpg)
 
+## 注意
+安装依赖比较麻烦，需要多尝试，搜索报错信息  
+#pip install -i https://pypi.tuna.tsinghua.edu.cn/simple face_recognition  
+#pip install dlib -i https://pypi.python.org/simple/  
+keras>=2.2  
+
+## 改造内容
+增加一个api接口，项目较老问题太多。后续修复DockerFile
+![效果图片](https://github.com/koala9527/face_rank/blob/main/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20210808194904.png)
