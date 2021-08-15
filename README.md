@@ -20,7 +20,8 @@ keras>=2.2
 ## fix
 dockerfile已修复  
 增加未识别到人脸的报错返回  
-增加api接口  
+增加api接口,增加获取base64图片解析接口
+
 ![效果图片](https://github.com/koala9527/face_rank/blob/main/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20210808194904.png)  
 ## todo
 增加男女性别识别  

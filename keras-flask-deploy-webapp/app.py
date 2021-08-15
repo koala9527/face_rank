@@ -1,30 +1,24 @@
 from __future__ import division, print_function
-# coding=utf-8
-import sys
-import os
-import glob
-import re
+
+import base64
 import json
-import requests
-import numpy as np
-from keras.models import Sequential
-from keras.layers.core import Dense, Dropout, Flatten, Activation
-from keras.layers.convolutional import Conv2D, MaxPooling2D
-import keras
-from keras.applications.imagenet_utils import preprocess_input, decode_predictions
-from keras.models import load_model
-from keras.preprocessing import image
-from keras.preprocessing.image import img_to_array
-# Flask utils
-from flask import Flask, redirect, url_for, request, render_template
-from werkzeug.utils import secure_filename
-from gevent.pywsgi import WSGIServer
-import pickle
+# coding=utf-8
+import os
+from io import BytesIO
+
 import face_recognition as fr
-from flask_restful import Api, Resource, reqparse, marshal_with, fields
+import numpy as np
+import requests
+# Flask utils
+from flask import Flask, request, render_template
+from flask_restful import Api, Resource
+from gevent.pywsgi import WSGIServer
+from keras.models import load_model
+from werkzeug.utils import secure_filename
 
 # Define a flask app
 app = Flask(__name__)
+app.debug = False
 app.config.update(RESTFUL_JSON=dict(ensure_ascii=False))
 api = Api(app)
 # Model saved with Keras model.save()
@@ -48,18 +42,18 @@ print('Model loaded. Start serving...')
 def model_predict(img_path, model):
 
     # Preprocessing the image
+
     image = fr.load_image_file(img_path)
     encs = fr.face_encodings(image)
     # if len(encs) != 1:
     #     print("Find %d faces in %s" % (len(encs), img_path))
     #     continue
-
     # Be careful how your trained model deals with the input
     # otherwise, it won't make correct prediction!
     # x = preprocess_input(x, mode='caffe')  wozhushidiaole
 
     preds = model.predict(np.array(encs))
-    print(type(preds))
+    # print(type(preds))
     return preds
 
 
@@ -96,6 +90,30 @@ class Rankapi(Resource):
         return return_data, 200
 
 api.add_resource(Rankapi, '/rankapi')
+
+@app.route('/base64',methods=['POST'])
+def base64predict():
+    try:
+        imagedata = request.values['image']
+        imagedata = base64.b64decode(imagedata)
+        imagedata = BytesIO(imagedata)
+    except:
+        res = {'code':501,'msg':'base64解码失败'}
+    try:
+        preds = model_predict(imagedata, model)
+        t=round(preds[0][0]*2,3)
+        result=str(t)
+        score = str(result)
+        res = {'code': 200, 'msg': '识别成功','data':score}
+    except:
+        res = {'code': 501, 'msg': '未识别到人脸'}
+    return res
+
+# def resize_image(item):
+#     content = item.split(';')[1]
+#     image_encoded = content.split(',')[1]
+#     body = base64.decodestring(image_encoded.encode('utf-8'))
+#     return body
 
 @app.route('/predict', methods=['GET', 'POST'])
 def upload():
