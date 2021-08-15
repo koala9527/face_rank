@@ -1,7 +1,7 @@
 Werkzeug
 Flask
 numpy
-Keras
+Keras=2.2.4
 gevent
 pillow
 h5py

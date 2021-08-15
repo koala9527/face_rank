@@ -72,7 +72,6 @@ class Rankapi(Resource):
     def post(self, message=None):
         if request.method == 'POST':
             res = request.get_data()
-            print(res)
             res = json.loads(res)
             if 'face_url' in res:
                 ret = download_img(res['face_url'])
@@ -82,9 +81,11 @@ class Rankapi(Resource):
                     basepath = os.path.dirname(__file__)
                     img_name = res['face_url'].split('/').pop()
                     file_path=  os.path.join(basepath, 'uploads', img_name)
-                    preds = model_predict(file_path, model)
-                    t=round(preds[0][0]*2,3)
-                    print(preds[0])
+                    try:
+                        preds = model_predict(file_path, model)
+                    except:
+                        return {"code":403,"msg":"未识别到人脸"}
+                    print(t=round(preds[0][0]*2,3))
                     print('t',t)
                     return_data = {"code":200,"data":{"score":str(t)},"msg":"预测成功"}
                     return return_data
@@ -109,22 +110,25 @@ def upload():
         f.save(file_path)
 
         # Make prediction
-        preds = model_predict(file_path, model)
+        try:
+            preds = model_predict(file_path, model)
+            t=round(preds[0][0]*2,3)
+            print('t',t)
+            # print(type(t))
+            # result=t.tolist()
+            # print(result)
+            # print(type(result))
+            result=str(t)
+            print(result)
+            result1 = str(result)
+        except:
+            result1="未识别到人脸"
         # preds=model_predict("C://l/c1.jpg",model)
-        print(preds[0])
         # Process your result for human
         # pred_class = preds.argmax(axis=-1)            # Simple argmax
         # pred_class = decode_predictions(preds, top=1)   # ImageNet Decode
         # result = str(pred_class[0][0][1])               # Convert to string
-        t=round(preds[0][0]*2,3)
-        print('t',t)
-        # print(type(t))
-        # result=t.tolist()
-        # print(result)
-        # print(type(result))
-        result=str(t)
-        print(result)
-        result1 = str(result)
+
         return result1
     return None
 
@@ -145,9 +149,9 @@ def download_img(img_url):
         return True
 
 if __name__ == '__main__':
-    app.run(port=5002, debug=True)
+    # app.run(port=5002, debug=True)
 
     # Serve the app with gevent
-    # http_server = WSGIServer(('0.0.0.0', 5000), app)
-    # http_server.serve_forever()
+    http_server = WSGIServer(('0.0.0.0', 5000), app)
+    http_server.serve_forever()
 
